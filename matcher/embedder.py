@@ -7,8 +7,12 @@ logger = logging.getLogger(__name__)
 
 class Embedder:
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        import os
         self._resume_text: str = ""
+        offline = os.environ.get("HF_HUB_OFFLINE", "0") == "1"
         try:
+            if offline:
+                raise RuntimeError("HF_HUB_OFFLINE set — skipping to TF-IDF")
             from sentence_transformers import SentenceTransformer
             logger.info("Loading embedding model: %s", model_name)
             self.model = SentenceTransformer(model_name)
