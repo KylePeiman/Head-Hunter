@@ -165,7 +165,10 @@ def main():
     with open(resume_path, encoding="utf-8", errors="replace") as f:
         resume_text = f.read()
     resume_embedding = embedder.embed(resume_text)
-    logger.info("Resume embedded (%d dims)", len(resume_embedding))
+    if resume_embedding is not None:
+        logger.info("Resume embedded (%d dims)", len(resume_embedding))
+    else:
+        logger.info("Resume indexed for TF-IDF ranking")
 
     if not dry_run:
         llm = load_llm(config)

@@ -6,9 +6,8 @@ model_path: models/Qwen3-8B-Q4_K_M.gguf
 # --- Search Parameters ---
 job_titles:
   - "software engineer"
-  - "backend engineer"
-  - "python developer"
-location: "New York, NY"
+  - "data engineer"
+location: "Orlando, FL"
 remote_only: false
 
 # --- Crawler Settings ---
