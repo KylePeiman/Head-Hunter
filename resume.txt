@@ -1,0 +1,23 @@
+Paste your resume text here. Plain text format works best.
+
+Example:
+
+John Doe
+john@example.com | github.com/johndoe | linkedin.com/in/johndoe
+
+EXPERIENCE
+
+Senior Software Engineer — Acme Corp (2021–Present)
+- Built Python microservices handling 10k req/s using FastAPI and PostgreSQL
+- Led migration from monolith to Kubernetes-based architecture
+- Mentored team of 4 engineers
+
+Software Engineer — StartupXYZ (2019–2021)
+- Developed REST APIs in Python/Django; reduced latency 40%
+- Implemented CI/CD pipelines with GitHub Actions and Docker
+
+SKILLS
+Python, FastAPI, Django, PostgreSQL, Redis, Docker, Kubernetes, AWS, Git
+
+EDUCATION
+B.S. Computer Science — State University (2019)

@@ -1,0 +1,9 @@
+requests>=2.31.0
+feedparser>=6.0.10
+sentence-transformers>=2.7.0
+torch>=2.2.0
+PyYAML>=6.0.1
+schedule>=1.2.1
+Flask>=3.0.0
+numpy>=1.26.0
+sendgrid>=6.11.0
