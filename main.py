@@ -113,8 +113,19 @@ def run_cycle(config, conn, embedder: Embedder, resume_embedding: list, resume_t
         if surfaced:
             surfaced_jobs = get_surfaced_jobs(conn)
             send_digest(config, surfaced_jobs)
-    elif llm is None:
-        logger.info("LLM not loaded — skipping simulation (dry-run mode)")
+    elif top_jobs and llm is None:
+        # No LLM — surface top-N jobs ranked by resume similarity score
+        logger.info("No LLM — surfacing %d jobs by similarity score", len(top_jobs))
+        for job in top_jobs:
+            score = job.get("similarity_score", 0.0)
+            upsert_simulation(conn, job["id"], {
+                "surfaced": True,
+                "pass_rate": score,
+                "ats_pass_rate": score,
+                "common_missing_keywords": [],
+                "sample_recruiter_reasoning": "Ranked by resume similarity (no LLM simulation)",
+            })
+        send_digest(config, get_surfaced_jobs(conn))
 
     logger.info("=== Cycle complete ===")
 
