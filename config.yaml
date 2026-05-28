@@ -1,0 +1,58 @@
+# --- Paths ---
+resume_path: resume.txt
+db_path: db/headhunter.db
+model_path: models/Qwen3-8B-Q4_K_M.gguf
+
+# --- Search Parameters ---
+job_titles:
+  - "software engineer"
+  - "data engineer"
+location: "Orlando, FL"
+remote_only: false
+
+# --- Crawler Settings ---
+crawlers:
+  adzuna:
+    enabled: true
+    api_id: "YOUR_ADZUNA_APP_ID"
+    api_key: "YOUR_ADZUNA_API_KEY"
+    country: "us"
+    results_per_page: 50
+    max_pages: 1
+  indeed_rss:
+    enabled: true
+  remotive:
+    enabled: true
+  the_muse:
+    enabled: true
+    api_key: ""
+request_delay_seconds: 2.5
+
+# --- Embedding & Ranking ---
+embedding_model: "all-MiniLM-L6-v2"
+top_n_for_simulation: 20
+
+# --- Simulation ---
+simulation_rounds: 5
+temperature_min: 0.5
+temperature_max: 0.7
+surface_threshold: 3
+llm_context_length: 4096
+llm_n_gpu_layers: -1
+
+# --- Scheduler ---
+schedule_times:
+  - "08:00"
+  - "18:00"
+
+# --- Flask ---
+flask_host: "127.0.0.1"
+flask_port: 5000
+flask_debug: false
+
+# --- Optional Email Digest ---
+sendgrid:
+  enabled: false
+  api_key: ""
+  from_email: "you@example.com"
+  to_email: "you@example.com"

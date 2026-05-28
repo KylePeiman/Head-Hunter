@@ -1,0 +1,75 @@
+KYLE PEIMAN
+Senior Data Engineer  •  Orlando, FL  •  321-439-4349  •  kylepeiman16@gmail.com  •  LinkedIn  •  GitHub
+
+TECHNICAL SKILLS
+
+Languages
+Python, SQL, PySpark, UNIX Shell
+Tools & Frameworks
+Streamlit, REST APIs, Selenium, Pandas, Apache Airflow
+Cloud & DevOps
+AWS (S3, S3fs, Lambda, Glue, Bedrock), Docker, GitHub Actions, Terraform Cloud, CI/CD
+Data Engineering
+ETL/ELT, Distributed Pipelines, Event-Driven Architecture, Apache Iceberg, Parquet, Lakehouse Architecture
+Streaming
+Kafka, Apache Flink, WebSockets, Sliding Window Aggregation, Stateful Processing, Consumer Lag Management, Low-Latency Ingestion
+Data Quality
+Schema Validation, Automated DQ Checks, Anomaly Detection, Continuous Validation, SonarQube
+Security
+FINRA data handling, PII tokenization, IAM/least-privilege, Encryption at rest, AWS audit logging
+ML & AI
+GitHub Copilot, Copilot CLI, LLM APIs (Claude/Anthropic), llama.cpp, GGUF/Quantized Models, AWS Agent Core, Strands, Multi-Agent Orchestration
+Concepts
+Algorithmic Trading, Prediction Markets, Sentiment Analysis, Real-Time Sentiment Pipelines, High-Frequency Systems
+
+PROJECTS
+Zeitgeist — Real-Time Internet Sentiment Pipeline  |  GitHub
+• Built an end-to-end real-time sentiment pipeline tracking public opinion on 95 entities (celebrities, brands, sports teams, AI products) across Reddit, YouTube, and News APIs using Kafka, Apache Flink, and a locally hosted LLM (phi-4-mini via llama.cpp).
+• Three Kafka producers publish to source-specific raw topics; a Flink cluster consumes all three simultaneously, applying sliding window aggregation (5-min window, 30-sec slide) to normalize raw engagement data into scored sentiment signals on a processed.signals topic.
+• LLM microservice consumes processed signals and classifies sentiment (positive/negative/neutral, -1.0 to 1.0 score) using GPU-accelerated llama.cpp (~150 t/s); VADER runs concurrently as a fallback to prevent consumer lag buildup.
+• Results persisted to SQLite and rendered in a Streamlit dashboard — live leaderboard of most loved and most hated entities, filterable by category with sentiment trend charts.
+Kalshi Sniper — Autonomous Prediction Market Trading System  |  GitHub
+• Built a full CLI trading application targeting Kalshi prediction markets with two live strategies: last-second convergence (enters stable price buckets in the final 120 seconds before close) and micro-arbitrage detection (binary and series arbs where combined YES asks fall below 100¢).
+• Engineered a worker pool architecture that spawns parallel $1 sessions, automatically graduates workers to $10, banks profit, and compounds capital — increasing throughput proportionally without increasing per-position risk.
+• Implemented cross-platform arbitrage scanning across Kalshi and Polymarket with RSA-PSS authenticated WebSocket feeds from both Kalshi and Kraken for real-time price data.
+• Integrated a Claude + NewsAPI headline prediction mode for news-driven market entries; persists all sessions, positions, and P&L to SQLAlchemy ORM with a live GitHub Pages dashboard publishing real-time performance data.
+• Achieved consistent ~10x overnight returns across multiple runs on small bankrolls.
+TFT Match Analytics & Recommendation Engine (POC)
+• Built a Python app combining the Riot Games API (match history, player stats) with screen scraping of fan sites (team compositions, item builds) to aggregate real-time competitive data.
+• Passed synthesized data to an LLM to generate curated, player-specific recommendations — end-to-end pipeline from raw web extraction to AI-driven insights.
+Distributed Data Integration Platform (AWS + PySpark)
+• Engineered pipelines processing millions of records daily with schema validation and monitoring. Implemented S3fs byte-level streaming for 10+ GB files impractical to load in memory, reducing data availability lag.
+Source-to-CDM File Mapping Tool (Streamlit + AWS Bedrock)
+• Solo-built internal tool reducing financial data file mapping from several days to minutes. Accepts CSV, XLSX, fixed-width, and PDF; invokes Claude Opus via Bedrock to match columns to a Common Data Model (CDM) across Accounts, Transactions, Positions, and Securities. 6 source files mapped in production.
+AI-Driven Financial Document Summarization (AWS EBA)
+• Selected for formal AWS Experience Based Acceleration (EBA) — built multi-agent summarization system using Agent Core + Strands. Used Glue to segment 200–500 page documents, routing via Lambda to 6 parallel agents, compressing weeks of analyst work into an automated pipeline.
+
+CERTIFICATIONS
+AWS Certified Cloud Practitioner   |   Valid 2023–2027
+
+EDUCATION
+Master of Science — Cybersecurity & Privacy  University of Central Florida
+Bachelor of Science — Computer Criminology  Florida State University
+
+PROFESSIONAL EXPERIENCE
+LPL FINANCIAL  —  Financial Services Technology
+   Senior Data Engineer / Team Lead  2026 – Present
+• Own 4 production pipelines processing millions of records / ~200GB daily; leading consolidation from 4->2 pipelines to cut maintenance overhead.
+• Architected low-latency ingestion using S3fs byte-stream processing. Expanded CI/CD to 7 environments via GitHub Actions + Terraform Cloud across two repos.
+• Implemented event-driven processing and continuous validation (Kafka/Flink patterns). Containerized apps with Docker for consistent cross-environment deployment.
+• Enforce FINRA-compliant handling: PII tokenization, encryption at rest, IAM least-privilege, and strict sensitive-data isolation from non-prod environments.
+• Independently refactored entire codebase — resolved ~800 code smells and 14 vulnerabilities via SonarQube; established vulnerability review as a standing workflow.
+• Deployed centralized GitHub Copilot infrastructure: 13 custom skills/agents in a single source-controlled repo; Copilot CLI operates uniformly across entire codebase (JIRA, AWS testing, unit tests).
+• Lead 3 engineers via structured 1:1s, PR reviews, and 9 personalized development goals — team ahead of schedule at mid-year. Abstain from retros to preserve psychological safety.
+• Author ADRs consumed across broader data engineering org. Lead architecture reviews, conduct technical interviews, and interface regularly with POs, operations, and executives.
+• Led M&A data integration end-to-end: two generic pipelines, ~150 files, ~200GB, 10K+ accounts, six downstream teams — delivered in 4 months under hard acquisition deadline.
+   Data Engineer II  2023 – 2026
+• Built scalable ingestion/transformation pipelines for real-time insights. Developed distributed coordination patterns for low-latency ETL/ELT across regions.
+• Created Python automation for validation, metadata extraction, and incremental processing. Co-designed DQ rules engine for automated checks and streaming-friendly validation.
+• Assumed primary ownership of Informatica -> AWS migration: converted 200 workflows to Glue + Airflow over ~1 year, stepping up when original lead departed. Designed YAML-driven pipeline with AI-generated SQL remediation at scale; reached dark production deployment.
+• Configured on-prem sourcing via Glue crawlers + JDBC across ~10 tables / 5 environments, handling service accounts and firewall clearance.
+• Designed Apache Iceberg table format and partitioning strategy for the lakehouse output layer — processing transformed data through Glue into Parquet-backed Iceberg tables on S3, enabling efficient incremental reads and time-travel queries.
+   Data Engineer I  2022 – 2023
+• Built Python tools improving data accessibility and ingestion speed. Implemented schema validation and field-level integrity checks for batch and streaming workflows.
+• Built Selenium headless Chromium scraper to extract data dictionary tables from a provider's web portal — producing structured CSV extracts across hundreds of tables, eliminating manual documentation effort.
+• Supported integration of Manta data lineage tool — cleared firewall access across 3 servers / 3 environments, condensed lineage extracts, loaded into data.world, authored reusable SQL queries for stakeholders.

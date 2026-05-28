@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ job.title }} — HeadHunter</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 24px; max-width: 860px; margin: 0 auto; }
+    a.back { color: #60a5fa; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-bottom: 20px; }
+    a.back:hover { text-decoration: underline; }
+    h1 { font-size: 1.5rem; font-weight: 700; color: #f8fafc; }
+    .meta { color: #64748b; font-size: 0.85rem; margin: 6px 0 20px; }
+    .remote-badge {
+      display: inline-block; background: #1d4ed8; color: #bfdbfe;
+      border-radius: 4px; padding: 1px 6px; font-size: 0.72rem; margin-left: 6px;
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: #1e293b; border-radius: 8px; padding: 14px 16px; }
+    .stat-label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .stat-value { font-size: 1.3rem; font-weight: 700; }
+    .stat-value.green { color: #34d399; }
+    .stat-value.yellow { color: #a3e635; }
+    .section { margin-bottom: 20px; }
+    .section h2 { font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .keywords-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .kw-tag { background: #292217; color: #f59e0b; border: 1px solid #78350f; border-radius: 4px; padding: 2px 8px; font-size: 0.78rem; }
+    .reasoning-box { background: #1e293b; border-left: 3px solid #475569; padding: 10px 14px; border-radius: 0 6px 6px 0; font-style: italic; color: #94a3b8; font-size: 0.85rem; }
+    .description { background: #1a2231; border-radius: 8px; padding: 16px; font-size: 0.82rem; line-height: 1.65; color: #cbd5e1; white-space: pre-wrap; word-break: break-word; max-height: 500px; overflow-y: auto; }
+    a.apply-btn {
+      display: inline-block; background: #166534; color: #bbf7d0; padding: 10px 22px;
+      border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-bottom: 24px;
+    }
+    a.apply-btn:hover { background: #15803d; }
+  </style>
+</head>
+<body>
+  <a class="back" href="/">← Back to listings</a>
+
+  <h1>{{ job.title }}
+    {% if job.remote %}<span class="remote-badge">Remote</span>{% endif %}
+  </h1>
+  <p class="meta">
+    {{ job.company }}{% if job.location %} &middot; {{ job.location }}{% endif %}
+    {% if job.source %} &middot; via {{ job.source }}{% endif %}
+    {% if job.posted_at %} &middot; {{ job.posted_at[:10] }}{% endif %}
+  </p>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Pass Rate</div>
+      <div class="stat-value green">
+        {% if job.pass_rate is not none %}{{ "%.0f%%"|format(job.pass_rate * 100) }}{% else %}—{% endif %}
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">ATS Pass Rate</div>
+      <div class="stat-value yellow">
+        {% if job.ats_pass_rate is not none %}{{ "%.0f%%"|format(job.ats_pass_rate * 100) }}{% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if job.url %}
+  <a class="apply-btn" href="{{ job.url }}" target="_blank" rel="noopener">Apply ↗</a>
+  {% endif %}
+
+  {% if job.common_missing_keywords %}
+  <div class="section">
+    <h2>Missing Keywords (resume gaps)</h2>
+    <div class="keywords-list">
+      {% for kw in job.common_missing_keywords %}
+      <span class="kw-tag">{{ kw }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if job.sample_recruiter_reasoning %}
+  <div class="section">
+    <h2>Recruiter Reasoning</h2>
+    <div class="reasoning-box">{{ job.sample_recruiter_reasoning }}</div>
+  </div>
+  {% endif %}
+
+  {% if job.description %}
+  <div class="section">
+    <h2>Job Description</h2>
+    <div class="description">{{ job.description }}</div>
+  </div>
+  {% endif %}
+</body>
+</html>
