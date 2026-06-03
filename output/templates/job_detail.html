@@ -32,6 +32,9 @@
       border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-bottom: 24px;
     }
     a.apply-btn:hover { background: #15803d; }
+    .url-text { margin: -16px 0 24px; font-size: 0.75rem; }
+    .url-text a { color: #475569; word-break: break-all; }
+    .url-text a:hover { color: #94a3b8; }
   </style>
 </head>
 <body>
@@ -63,6 +66,7 @@
 
   {% if job.url %}
   <a class="apply-btn" href="{{ job.url }}" target="_blank" rel="noopener">Apply ↗</a>
+  <p class="url-text"><a href="{{ job.url }}" target="_blank" rel="noopener">{{ job.url }}</a></p>
   {% endif %}
 
   {% if job.common_missing_keywords %}
