@@ -42,6 +42,14 @@ def truncate_text(text: str, max_chars: int = 3000) -> str:
     return text[:max_chars]
 
 
+def read_resume(path: str) -> str:
+    if path.lower().endswith(".docx"):
+        from docx import Document
+        doc = Document(path)
+        return "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+    return open(path, encoding="utf-8", errors="replace").read()
+
+
 def strip_html(html: str) -> str:
     text = re.sub(r"<[^>]+>", " ", html)
     text = re.sub(r"&amp;", "&", text)

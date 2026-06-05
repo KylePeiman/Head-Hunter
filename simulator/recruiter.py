@@ -4,8 +4,7 @@ from headhunter.utils import parse_llm_json, truncate_text
 
 logger = logging.getLogger(__name__)
 
-RECRUITER_PROMPT = """/no_think
-You are a recruiter with 30 seconds to review a resume.
+RECRUITER_PROMPT = """You are a recruiter with 30 seconds to review a resume.
 You care about: relevant titles, years of experience, recognizable companies, and career trajectory.
 Output JSON with exactly these fields:
 - pass: bool

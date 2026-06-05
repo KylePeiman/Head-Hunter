@@ -18,7 +18,7 @@ from db.database import (
     update_job_embedding,
     upsert_simulation,
 )
-from headhunter.utils import load_config, make_job_hash
+from headhunter.utils import load_config, make_job_hash, read_resume
 from matcher.embedder import Embedder
 from output.digest import send_digest
 from simulator.pipeline import run_pipeline
@@ -162,8 +162,7 @@ def main():
     if not os.path.exists(resume_path):
         logger.error("Resume file not found: %s", resume_path)
         sys.exit(1)
-    with open(resume_path, encoding="utf-8", errors="replace") as f:
-        resume_text = f.read()
+    resume_text = read_resume(resume_path)
     resume_embedding = embedder.embed(resume_text)
     if resume_embedding is not None:
         logger.info("Resume embedded (%d dims)", len(resume_embedding))
