@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# start.ps1 — Launch the HeadHunter pipeline
+# start.ps1 - Launch the HeadHunter pipeline
 
 $dir     = $PSScriptRoot
 $logsDir = Join-Path $dir "logs"
@@ -7,9 +7,14 @@ New-Item -ItemType Directory -Force -Path $logsDir | Out-Null
 
 $pidMap = @{}
 
-# ── LLAMA.CPP SERVER ──────────────────────────────────────────
+# --- LLAMA.CPP SERVER ---------------------------------------------------------
 $defaultModel = Join-Path $dir "models\Qwen2.5-1.5B-Instruct-Q4_K_M.gguf"
-$llamaModel   = if ($env:LLAMA_MODEL_PATH) { $env:LLAMA_MODEL_PATH } else { $defaultModel }
+if ($env:LLAMA_MODEL_PATH) {
+    $llamaModel = $env:LLAMA_MODEL_PATH
+} else {
+    $llamaModel = $defaultModel
+}
+
 $defaultExe = "C:\Users\Kyle\Desktop\GitHub\llama.cpp\prebuilt\llama-server.exe"
 if ($env:LLAMA_SERVER_EXE) {
     $llamaExe = $env:LLAMA_SERVER_EXE
@@ -18,8 +23,9 @@ if ($env:LLAMA_SERVER_EXE) {
 } else {
     $llamaExe = $defaultExe
 }
-$llamaPort    = 8081
-$llamaUrl     = "http://127.0.0.1:$llamaPort"
+
+$llamaPort = 8081
+$llamaUrl  = "http://127.0.0.1:$llamaPort"
 
 if (Test-Path $llamaModel) {
     Write-Host "Starting llama.cpp server..."
@@ -33,12 +39,15 @@ if (Test-Path $llamaModel) {
     $pidMap["llama"] = $llamaProc.Id
 
     Write-Host -NoNewline "Waiting for model to load"
-    $deadline  = (Get-Date).AddSeconds(300)
+    $deadline   = (Get-Date).AddSeconds(300)
     $llamaReady = $false
     while ((Get-Date) -lt $deadline) {
         try {
             $r = Invoke-WebRequest -Uri "$llamaUrl/health" -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop
-            if ($r.StatusCode -eq 200 -and $r.Content -match '"ok"') { $llamaReady = $true; break }
+            if ($r.StatusCode -eq 200 -and $r.Content -match '"ok"') {
+                $llamaReady = $true
+                break
+            }
         } catch {}
         Write-Host -NoNewline "."
         Start-Sleep -Seconds 3
@@ -53,14 +62,15 @@ if (Test-Path $llamaModel) {
             Write-Host "llama.cpp is ready (GPU)."
         }
     } else {
-        Write-Warning "llama.cpp did not become ready within 300s — HeadHunter will fall back to similarity-only mode."
+        Write-Warning "llama.cpp did not become ready within 300s. HeadHunter will fall back to similarity-only mode."
     }
 } else {
-    Write-Warning "Model not found at: $llamaModel — HeadHunter will fall back to similarity-only mode."
+    Write-Warning "Model not found at: $llamaModel. HeadHunter will fall back to similarity-only mode."
 }
+
 Write-Host ""
 
-# ── HEADHUNTER ────────────────────────────────────────────────
+# --- HEADHUNTER ---------------------------------------------------------------
 $log  = Join-Path $logsDir "headhunter.log"
 $proc = Start-Process cmd `
     -ArgumentList "/c", "python main.py >> `"$log`" 2>&1" `
