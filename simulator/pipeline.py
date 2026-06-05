@@ -15,7 +15,7 @@ def aggregate_missing_keywords(all_missing: list[list[str]], top_n: int = 5) -> 
 
 
 def simulate_job(
-    llm,
+    llm_url: str,
     resume: str,
     job: dict,
     rounds: int = 5,
@@ -32,7 +32,7 @@ def simulate_job(
     for _ in range(rounds):
         temp = random.uniform(temp_min, temp_max)
 
-        ats_result = run_ats(llm, resume, description, temp)
+        ats_result = run_ats(llm_url, resume, description, temp)
         if ats_result is None:
             logger.debug("ATS returned None for job_id=%s", job.get("id"))
             continue
@@ -42,7 +42,7 @@ def simulate_job(
             missing = ats_result.get("missing_keywords") or []
             all_missing_keywords.append(missing)
 
-            rec_result = run_recruiter(llm, resume, description, temp)
+            rec_result = run_recruiter(llm_url, resume, description, temp)
             if rec_result is None:
                 logger.debug("Recruiter returned None for job_id=%s", job.get("id"))
                 continue
@@ -82,7 +82,7 @@ def simulate_job(
     }
 
 
-def run_pipeline(llm, resume: str, jobs: list[dict], config: dict) -> list[dict]:
+def run_pipeline(llm_url: str, resume: str, jobs: list[dict], config: dict) -> list[dict]:
     rounds = config.get("simulation_rounds", 5)
     temp_min = config.get("temperature_min", 0.5)
     temp_max = config.get("temperature_max", 0.7)
@@ -93,7 +93,7 @@ def run_pipeline(llm, resume: str, jobs: list[dict], config: dict) -> list[dict]
     for i, job in enumerate(jobs, 1):
         logger.info("Simulating job %d/%d: %s at %s", i, total, job.get("title"), job.get("company"))
         result = simulate_job(
-            llm=llm,
+            llm_url=llm_url,
             resume=resume,
             job=job,
             rounds=rounds,
