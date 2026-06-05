@@ -33,6 +33,10 @@ models/*.bin
 *.swp
 *.swo
 
+# Runtime
+.pids.json
+logs/
+
 # OS
 .DS_Store
 Thumbs.db
