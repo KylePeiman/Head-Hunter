@@ -4,8 +4,7 @@ from headhunter.utils import parse_llm_json, truncate_text
 
 logger = logging.getLogger(__name__)
 
-ATS_PROMPT = """/no_think
-You are an ATS system. You do not reason — you check for keyword matches only.
+ATS_PROMPT = """You are an ATS system. You do not reason — you check for keyword matches only.
 Given this job description and resume, output JSON with exactly these fields:
 - pass: bool
 - matched_keywords: list of strings
