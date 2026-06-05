@@ -1,5 +1,7 @@
 import logging
 
+import requests
+
 from headhunter.utils import parse_llm_json, truncate_text
 
 logger = logging.getLogger(__name__)
@@ -18,20 +20,19 @@ Job Description:
 {job_description}"""
 
 
-def run_recruiter(llm, resume: str, job_description: str, temperature: float) -> dict | None:
+def run_recruiter(llm_url: str, resume: str, job_description: str, temperature: float) -> dict | None:
     prompt = RECRUITER_PROMPT.format(
         resume=truncate_text(resume, 2000),
         job_description=truncate_text(job_description, 2000),
     )
     try:
-        response = llm(
-            prompt,
-            max_tokens=256,
-            temperature=temperature,
-            echo=False,
-            stop=["\n\n\n"],
+        resp = requests.post(
+            f"{llm_url}/completion",
+            json={"prompt": prompt, "max_tokens": 256, "temperature": temperature, "stop": ["\n\n\n"]},
+            timeout=60,
         )
-        raw = response["choices"][0]["text"]
+        resp.raise_for_status()
+        raw = resp.json().get("content", "")
     except Exception as exc:
         logger.warning("Recruiter LLM call failed: %s", exc)
         return None

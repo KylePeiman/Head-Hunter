@@ -1,7 +1,7 @@
 # --- Paths ---
 resume_path: resume.txt
 db_path: db/headhunter.db
-model_path: models/Qwen3-8B-Q4_K_M.gguf
+llama_server_url: "http://localhost:8081"
 
 # --- Search Parameters ---
 job_titles:
@@ -37,8 +37,6 @@ simulation_rounds: 5
 temperature_min: 0.5
 temperature_max: 0.7
 surface_threshold: 3
-llm_context_length: 4096
-llm_n_gpu_layers: -1
 
 # --- Scheduler ---
 schedule_times:

@@ -5,6 +5,7 @@ import sys
 import threading
 import time
 
+import requests
 import schedule
 
 from crawler import adzuna, indeed_rss, remotive, the_muse
@@ -31,32 +32,12 @@ logging.basicConfig(
 logger = logging.getLogger("headhunter")
 
 
-def load_llm(config: dict):
+def check_llm_server(url: str) -> bool:
     try:
-        from llama_cpp import Llama
-    except ImportError:
-        logger.error(
-            "llama-cpp-python not installed. Install with:\n"
-            "  CMAKE_ARGS=\"-DGGML_CUDA=on\" pip install llama-cpp-python"
-        )
-        sys.exit(1)
-
-    model_path = config["model_path"]
-    if not os.path.exists(model_path):
-        logger.error(
-            "Model file not found: %s\n"
-            "Download Qwen3-8B-Q4_K_M.gguf and place it at that path.",
-            model_path,
-        )
-        sys.exit(1)
-
-    logger.info("Loading LLM from %s", model_path)
-    return Llama(
-        model_path=model_path,
-        n_ctx=config.get("llm_context_length", 4096),
-        n_gpu_layers=config.get("llm_n_gpu_layers", -1),
-        verbose=False,
-    )
+        resp = requests.get(f"{url}/health", timeout=5)
+        return resp.status_code == 200
+    except Exception:
+        return False
 
 
 def crawl_all(config: dict) -> list[dict]:
@@ -70,7 +51,7 @@ def crawl_all(config: dict) -> list[dict]:
     return all_jobs
 
 
-def run_cycle(config, conn, embedder: Embedder, resume_embedding: list, resume_text: str, llm):
+def run_cycle(config, conn, embedder: Embedder, resume_embedding: list, resume_text: str, llm_url: str | None):
     logger.info("=== Starting crawl cycle ===")
 
     raw_jobs = crawl_all(config)
@@ -84,38 +65,29 @@ def run_cycle(config, conn, embedder: Embedder, resume_embedding: list, resume_t
         if job_exists(conn, job_hash):
             continue
 
-        # Embed description before inserting
         description = job.get("description") or ""
-        if description:
-            job["embedding"] = embedder.embed(description)
-        else:
-            job["embedding"] = embedder.embed(job.get("title", ""))
-
+        job["embedding"] = embedder.embed(description or job.get("title", ""))
         insert_job(conn, job)
         new_count += 1
 
     logger.info("Inserted %d new jobs", new_count)
 
-    # Rank all unprocessed jobs against resume
     pending = get_jobs_without_simulation(conn)
     top_n = config.get("top_n_for_simulation", 20)
     top_jobs = embedder.rank_jobs(resume_embedding, pending, top_n)
     logger.info("Running simulation on top %d/%d unprocessed jobs", len(top_jobs), len(pending))
 
-    if top_jobs and llm is not None:
-        results = run_pipeline(llm, resume_text, top_jobs, config)
+    if top_jobs and llm_url is not None:
+        results = run_pipeline(llm_url, resume_text, top_jobs, config)
         for result in results:
             upsert_simulation(conn, result["job_id"], result)
         surfaced = [r for r in results if r.get("surfaced")]
         logger.info("Simulation complete: %d/%d surfaced", len(surfaced), len(results))
 
-        # Send digest if any surfaced
         if surfaced:
-            surfaced_jobs = get_surfaced_jobs(conn)
-            send_digest(config, surfaced_jobs)
-    elif top_jobs and llm is None:
-        # No LLM — surface top-N jobs ranked by resume similarity score
-        logger.info("No LLM — surfacing %d jobs by similarity score", len(top_jobs))
+            send_digest(config, get_surfaced_jobs(conn))
+    elif top_jobs:
+        logger.info("No LLM server — surfacing %d jobs by similarity score", len(top_jobs))
         for job in top_jobs:
             score = job.get("similarity_score", 0.0)
             upsert_simulation(conn, job["id"], {
@@ -133,10 +105,7 @@ def run_cycle(config, conn, embedder: Embedder, resume_embedding: list, resume_t
 def run_server(config: dict) -> None:
     from output.app import app, configure
 
-    configure(
-        db_path=config.get("db_path", "db/headhunter.db"),
-        run_cycle_fn=None,  # set after startup
-    )
+    configure(db_path=config.get("db_path", "db/headhunter.db"))
     host = config.get("flask_host", "127.0.0.1")
     port = config.get("flask_port", 5000)
     debug = config.get("flask_debug", False)
@@ -147,10 +116,6 @@ def run_server(config: dict) -> None:
 def main():
     config_path = os.environ.get("HEADHUNTER_CONFIG", "config.yaml")
     config = load_config(config_path)
-
-    # Validate model before heavy initialization (unless --no-llm flag given)
-    dry_run = "--no-llm" in sys.argv
-    llm = None
 
     conn = init_db(config["db_path"])
     logger.info("Database initialized at %s", config["db_path"])
@@ -169,25 +134,32 @@ def main():
     else:
         logger.info("Resume indexed for TF-IDF ranking")
 
-    if not dry_run:
-        llm = load_llm(config)
+    # Check LLM server availability
+    llm_url: str | None = None
+    if "--no-llm" not in sys.argv:
+        url = config.get("llama_server_url", "http://localhost:8081")
+        if check_llm_server(url):
+            llm_url = url
+            logger.info("LLM server reachable at %s", url)
+        else:
+            logger.warning(
+                "LLM server not reachable at %s — running in similarity-only mode. "
+                "Start your llama.cpp server or use --no-llm to suppress this warning.",
+                url,
+            )
 
     def cycle():
-        run_cycle(config, conn, embedder, resume_embedding, resume_text, llm)
+        run_cycle(config, conn, embedder, resume_embedding, resume_text, llm_url)
 
-    # Wire refresh button
     from output.app import configure as configure_flask
     configure_flask(db_path=config["db_path"], run_cycle_fn=cycle)
 
-    # Schedule recurring cycles
     for t in config.get("schedule_times", ["08:00", "18:00"]):
         schedule.every().day.at(t).do(cycle)
         logger.info("Scheduled daily crawl at %s", t)
 
-    # Run once immediately
     cycle()
 
-    # Start Flask in daemon thread
     server_thread = threading.Thread(target=run_server, args=(config,), daemon=True)
     server_thread.start()
 
