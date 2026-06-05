@@ -10,10 +10,14 @@ $pidMap = @{}
 # ── LLAMA.CPP SERVER ──────────────────────────────────────────
 $defaultModel = Join-Path $dir "models\Qwen2.5-1.5B-Instruct-Q4_K_M.gguf"
 $llamaModel   = if ($env:LLAMA_MODEL_PATH) { $env:LLAMA_MODEL_PATH } else { $defaultModel }
-$defaultExe   = "C:\Users\Kyle\Desktop\GitHub\llama.cpp\prebuilt\llama-server.exe"
-$llamaExe     = if ($env:LLAMA_SERVER_EXE)                                  { $env:LLAMA_SERVER_EXE } `
-                elseif (Get-Command llama-server -ErrorAction SilentlyContinue) { "llama-server" } `
-                else                                                             { $defaultExe }
+$defaultExe = "C:\Users\Kyle\Desktop\GitHub\llama.cpp\prebuilt\llama-server.exe"
+if ($env:LLAMA_SERVER_EXE) {
+    $llamaExe = $env:LLAMA_SERVER_EXE
+} elseif (Get-Command llama-server -ErrorAction SilentlyContinue) {
+    $llamaExe = "llama-server"
+} else {
+    $llamaExe = $defaultExe
+}
 $llamaPort    = 8081
 $llamaUrl     = "http://127.0.0.1:$llamaPort"
 
